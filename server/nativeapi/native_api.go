@@ -77,6 +77,7 @@ func (api *Router) routes() http.Handler {
 
 		api.addPlaylistRoute(r)
 		api.addPlaylistTrackRoute(r)
+		api.addPlaylistImageRoute(r)
 		api.addSongPlaylistsRoute(r)
 		api.addQueueRoute(r)
 		api.addMissingFilesRoute(r)
@@ -168,6 +169,13 @@ func (api *Router) addPlaylistTrackRoute(r chi.Router) {
 				deleteFromPlaylist(api.ds)(w, r)
 			})
 		})
+	})
+}
+
+func (api *Router) addPlaylistImageRoute(r chi.Router) {
+	r.Route("/playlist/{playlistId}/image", func(r chi.Router) {
+		r.Post("/", uploadPlaylistImage(api.ds))
+		r.Delete("/", deletePlaylistImage(api.ds))
 	})
 }
 

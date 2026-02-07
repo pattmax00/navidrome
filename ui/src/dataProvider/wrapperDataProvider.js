@@ -1,5 +1,6 @@
 import jsonServerProvider from 'ra-data-json-server'
 import httpClient from './httpClient'
+import { httpClientUpload } from './httpClient'
 import { REST_URL } from '../consts'
 
 const dataProvider = jsonServerProvider(REST_URL, httpClient)
@@ -219,6 +220,19 @@ const wrapperDataProvider = {
     return httpClient(`${REST_URL}/inspect?id=${songId}`).then(({ json }) => ({
       data: json,
     }))
+  },
+  uploadPlaylistImage: (playlistId, file) => {
+    const formData = new FormData()
+    formData.append('image', file)
+    return httpClientUpload(`${REST_URL}/playlist/${playlistId}/image`, {
+      method: 'POST',
+      body: formData,
+    }).then((json) => ({ data: json }))
+  },
+  deletePlaylistImage: (playlistId) => {
+    return httpClient(`${REST_URL}/playlist/${playlistId}/image`, {
+      method: 'DELETE',
+    }).then(({ json }) => ({ data: json }))
   },
 }
 

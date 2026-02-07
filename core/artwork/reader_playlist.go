@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
 	"io"
+	"os"
 	"time"
 
 	"github.com/disintegration/imaging"
@@ -43,11 +45,28 @@ func (a *playlistArtworkReader) LastUpdated() time.Time {
 }
 
 func (a *playlistArtworkReader) Reader(ctx context.Context) (io.ReadCloser, string, error) {
-	ff := []sourceFunc{
+	var ff []sourceFunc
+	if a.pl.ImagePath != "" {
+		ff = append(ff, a.fromCustomImage())
+	}
+	ff = append(ff,
 		a.fromGeneratedTiledCover(ctx),
 		fromAlbumPlaceholder(),
-	}
+	)
 	return selectImageReader(ctx, a.artID, ff...)
+}
+
+func (a *playlistArtworkReader) fromCustomImage() sourceFunc {
+	return func() (io.ReadCloser, string, error) {
+		if a.pl.ImagePath == "" {
+			return nil, "", fmt.Errorf("no custom image set for playlist %s", a.pl.ID)
+		}
+		f, err := os.Open(a.pl.ImagePath)
+		if err != nil {
+			return nil, "", fmt.Errorf("could not open custom playlist image %q: %w", a.pl.ImagePath, err)
+		}
+		return f, a.pl.ImagePath, nil
+	}
 }
 
 func (a *playlistArtworkReader) fromGeneratedTiledCover(ctx context.Context) sourceFunc {

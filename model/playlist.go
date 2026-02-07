@@ -24,6 +24,10 @@ type Playlist struct {
 	CreatedAt time.Time      `structs:"created_at" json:"createdAt"`
 	UpdatedAt time.Time      `structs:"updated_at" json:"updatedAt"`
 
+	// ImagePath stores the filesystem path to a user-uploaded custom cover image.
+	// When set, this image takes priority over the auto-generated tiled collage.
+	ImagePath string `structs:"image_path" json:"imagePath,omitempty"`
+
 	// SmartPlaylist attributes
 	Rules       *criteria.Criteria `structs:"rules" json:"rules"`
 	EvaluatedAt *time.Time         `structs:"evaluated_at" json:"evaluatedAt"`
